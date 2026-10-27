@@ -712,3 +712,33 @@ describe('Radial auto point labels', function() {
     });
   });
 });
+describe('Radial auto-label circular seam', function() {
+  [false, true].forEach(function(centerPointLabels) {
+    [45, 90, 135, 270].forEach(function(startAngle) {
+      it('retained boxes do not intersect at angle ' + startAngle + ', centered ' + centerPointLabels, function() {
+        var count = 100;
+        var chart = window.acquireChart({
+          type: 'polarArea',
+          data: {
+            labels: Array.from({length: count}, (_, i) => Array(i % 3 + 1).fill('Label '.repeat(i % 4 + 1) + i)),
+            datasets: [{data: Array(count).fill(1)}]
+          },
+          options: {
+            animation: false, plugins: {legend: false},
+            scales: {r: {startAngle, pointLabels: {display: 'auto', centerPointLabels}}}
+          }
+        });
+        var items = chart.scales.r._pointLabelItems.filter(item => item.visible);
+        var overlaps = [];
+        items.forEach(function(a, i) {
+          items.slice(i + 1).forEach(function(b) {
+            if (a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top) {
+              overlaps.push([chart.scales.r._pointLabelItems.indexOf(a), chart.scales.r._pointLabelItems.indexOf(b)]);
+            }
+          });
+        });
+        expect(overlaps).toEqual([]);
+      });
+    });
+  });
+});
