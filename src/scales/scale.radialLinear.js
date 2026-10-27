@@ -1,5 +1,5 @@
 import defaults from '../core/core.defaults.js';
-import {_longestText, addRoundedRectPath, renderText, _isPointInArea} from '../helpers/helpers.canvas.js';
+import {_longestText, addRoundedRectPath, renderText} from '../helpers/helpers.canvas.js';
 import {HALF_PI, TAU, toDegrees, toRadians, _normalizeAngle, PI} from '../helpers/helpers.math.js';
 import LinearScaleBase from './scale.linearbase.js';
 import Ticks from '../core/core.ticks.js';
@@ -167,10 +167,9 @@ function isNotOverlapped(item, area) {
   if (!area) {
     return true;
   }
-  const {left, top, right, bottom} = item;
-  const apexesInArea = _isPointInArea({x: left, y: top}, area) || _isPointInArea({x: left, y: bottom}, area) ||
-    _isPointInArea({x: right, y: top}, area) || _isPointInArea({x: right, y: bottom}, area);
-  return !apexesInArea;
+  // Match the half-pixel margin previously used for corner checks.
+  return item.left >= area.right + 0.5 || item.right <= area.left - 0.5 ||
+    item.top >= area.bottom + 0.5 || item.bottom <= area.top - 0.5;
 }
 
 function buildPointLabelItems(scale, labelSizes, padding) {
