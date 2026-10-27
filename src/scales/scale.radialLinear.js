@@ -182,6 +182,7 @@ function buildPointLabelItems(scale, labelSizes, padding) {
     additionalAngle: centerPointLabels ? PI / valueCount : 0
   };
   let area;
+  let first;
 
   for (let i = 0; i < valueCount; i++) {
     itemOpts.padding = padding[i];
@@ -190,8 +191,10 @@ function buildPointLabelItems(scale, labelSizes, padding) {
     const item = createPointLabelItem(scale, i, itemOpts);
     items.push(item);
     if (display === 'auto') {
-      item.visible = isNotOverlapped(item, area);
+      // The traversal wraps around the scale, so also check its first label.
+      item.visible = isNotOverlapped(item, area) && isNotOverlapped(item, first);
       if (item.visible) {
+        first = first || item;
         area = item;
       }
     }
